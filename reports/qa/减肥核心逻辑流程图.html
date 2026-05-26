@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f7f8fb">
+<title>减肥核心逻辑流程图 · 代谢 × 饮食 × 运动</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        wx: {
+          bg: '#f7f8fb', panel: '#ffffff', card: '#ffffff',
+          soft: '#f1f4f9', border: '#e4e8f0', borderSoft: '#eef1f6',
+          primary: '#2563eb', green: '#059669', orange: '#ea580c',
+          purple: '#7c3aed', cyan: '#0891b2', gold: '#d97706', red: '#dc2626',
+          text: '#0f172a', sub: '#64748b', muted: '#94a3b8'
+        }
+      },
+      fontFamily: { hei: ['PingFang SC','Microsoft YaHei','sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { background:#f7f8fb; color:#0f172a; font-family:'PingFang SC','Microsoft YaHei',sans-serif; padding-bottom: env(safe-area-inset-bottom); overflow-x: hidden; }
+  .num-font { font-family:'SF Mono','Consolas','Monaco',monospace; font-variant-numeric: tabular-nums; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .fade-up { animation: fadeUp .7s ease both; }
+  .fade-up-d1 { animation: fadeUp .7s ease .15s both; }
+  .fade-up-d2 { animation: fadeUp .7s ease .3s both; }
+  .fade-up-d3 { animation: fadeUp .7s ease .45s both; }
+  .float-anim { animation: float 6s ease-in-out infinite; }
+
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
+
+  /* 卡片 */
+  .card-base {
+    background:#ffffff;
+    border:1px solid #e4e8f0;
+    border-radius:16px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+    transition: all .25s ease;
+  }
+  .card-base:hover {
+    box-shadow: 0 8px 20px rgba(15,23,42,.06), 0 2px 6px rgba(15,23,42,.04);
+    transform: translateY(-1px);
+  }
+
+  /* 主题色边框 hover（浅色） */
+  .hover-blue:hover   { border-color:#bfdbfe; }
+  .hover-green:hover  { border-color:#a7f3d0; }
+  .hover-orange:hover { border-color:#fed7aa; }
+  .hover-purple:hover { border-color:#ddd6fe; }
+  .hover-gold:hover   { border-color:#fde68a; }
+  .hover-red:hover    { border-color:#fecaca; }
+
+  /* 章节序号方块 */
+  .sec-num {
+    width:32px; height:32px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-family:'SF Mono','Consolas',monospace;
+    font-size: 13px; flex-shrink: 0;
+  }
+  @media(min-width:640px){ .sec-num { width:36px; height:36px; border-radius:10px; font-size:14px; } }
+
+  /* 流程图节点连接线（仅桌面） */
+  .conn-line {
+    background: linear-gradient(180deg, #cbd5e1 0%, transparent 100%);
+  }
+
+  /* 数据表 */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table thead th {
+    color:#64748b; text-transform:uppercase; letter-spacing:.05em;
+    font-size:10px; font-weight:600; background:#f1f4f9;
+  }
+  .data-table tbody tr { transition: background .15s ease; }
+  .data-table tbody tr:hover { background:rgba(37,99,235,.04); }
+  .data-table tbody tr:nth-child(even) { background:rgba(241,244,249,.5); }
+  .data-table tbody tr:nth-child(even):hover { background:rgba(37,99,235,.06); }
+  .data-table td, .data-table th { padding:10px 12px; border-bottom:1px solid #eef1f6; white-space: nowrap; }
+  @media(min-width:640px){
+    .data-table thead th { font-size:11px; }
+    .data-table td, .data-table th { padding:12px 14px; }
+  }
+  .num { font-family:'SF Mono','Consolas',monospace; text-align:right; font-variant-numeric: tabular-nums; }
+
+  /* 表格横向滚动包裹 */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px; }
+  @media(min-width:640px){ .table-wrap { margin: 0; padding: 0; } }
+
+  /* 强调色块（浅色彩底） */
+  .tag-blue   { background:#eff6ff; color:#1d4ed8; border:1px solid #dbeafe; }
+  .tag-green  { background:#ecfdf5; color:#047857; border:1px solid #d1fae5; }
+  .tag-orange { background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; }
+  .tag-purple { background:#f5f3ff; color:#6d28d9; border:1px solid #ede9fe; }
+  .tag-gold   { background:#fffbeb; color:#b45309; border:1px solid #fef3c7; }
+  .tag-red    { background:#fef2f2; color:#b91c1c; border:1px solid #fee2e2; }
+  .tag-cyan   { background:#ecfeff; color:#0e7490; border:1px solid #cffafe; }
+
+  /* 浅色光晕（背景） */
+  .glow-soft-blue   { background: radial-gradient(circle, rgba(37,99,235,.10), transparent 70%); }
+  .glow-soft-green  { background: radial-gradient(circle, rgba(5,150,105,.10), transparent 70%); }
+  .glow-soft-orange { background: radial-gradient(circle, rgba(234,88,12,.10), transparent 70%); }
+
+  /* 顶栏导航横向滚动（手机） */
+  .nav-scroll { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .nav-scroll::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body class="bg-wx-bg text-wx-text font-hei min-h-screen antialiased">
+
+<!-- 顶栏 -->
+<header class="sticky top-0 z-40 backdrop-blur-xl bg-white/85 border-b border-wx-border shadow-sm" style="padding-top: env(safe-area-inset-top);">
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center gap-3">
+    <div class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
+      <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-sm">
+        <i class="fa-solid fa-fire text-white text-base sm:text-lg"></i>
+      </div>
+      <div class="min-w-0">
+        <div class="text-[13px] sm:text-sm font-semibold tracking-wide text-wx-text truncate">减肥核心逻辑流程图</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub tracking-wider uppercase hidden sm:block">Metabolism × Diet × Exercise</div>
+      </div>
+    </div>
+    <nav class="nav-scroll flex-1 flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-wx-sub whitespace-nowrap min-w-0 ml-2">
+      <a href="#formula" class="hover:text-wx-primary transition flex-shrink-0">能量公式</a>
+      <a href="#metabolism" class="hover:text-wx-primary transition flex-shrink-0">代谢底盘</a>
+      <a href="#diet" class="hover:text-wx-primary transition flex-shrink-0">饮食控制</a>
+      <a href="#exercise" class="hover:text-wx-primary transition flex-shrink-0">运动放大</a>
+      <a href="#loop" class="hover:text-wx-primary transition flex-shrink-0">闭环陷阱</a>
+      <a href="#action" class="hover:text-wx-primary transition flex-shrink-0">行动框架</a>
+    </nav>
+    <div class="hidden sm:block text-xs text-wx-sub num-font flex-shrink-0">2026-05-26</div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="relative overflow-hidden">
+  <div class="absolute -top-32 -left-20 w-72 sm:w-96 h-72 sm:h-96 rounded-full glow-soft-green blur-3xl float-anim opacity-60"></div>
+  <div class="absolute -bottom-20 -right-10 w-72 sm:w-96 h-72 sm:h-96 rounded-full glow-soft-orange blur-3xl float-anim opacity-60" style="animation-delay:-3s"></div>
+  <div class="absolute top-20 right-1/3 w-56 sm:w-72 h-56 sm:h-72 rounded-full glow-soft-blue blur-3xl float-anim opacity-60" style="animation-delay:-1.5s"></div>
+
+  <div class="relative max-w-[1400px] mx-auto px-4 sm:px-6 pt-8 sm:pt-14 pb-6 sm:pb-10">
+    <div class="fade-up">
+      <div class="text-[10px] sm:text-xs text-wx-sub tracking-[0.2em] sm:tracking-[0.25em] uppercase mb-2 sm:mb-3">Body Recomposition · Core Logic Map</div>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight text-wx-text">
+        减肥的本质：<span class="text-wx-green">能量缺口</span> × <span class="text-wx-orange">代谢效率</span> × <span class="text-wx-primary">习惯持续</span>
+      </h1>
+      <p class="text-wx-sub mt-3 sm:mt-4 max-w-3xl leading-relaxed text-sm sm:text-base">
+        减脂不是"少吃多动"四个字这么简单 —— 代谢决定你的天花板，饮食决定缺口大小，运动决定身体成分。
+        本图把这几个变量之间的因果链、反馈环和常见陷阱一次性讲清楚。
+      </p>
+    </div>
+
+    <!-- 4 个核心数字 -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+      <div class="fade-up-d1 card-base hover-green p-4 sm:p-5">
+        <div class="text-[11px] sm:text-xs text-wx-sub mb-1"><i class="fa-solid fa-bolt text-wx-green mr-1.5"></i>BMR 占比</div>
+        <div class="text-2xl sm:text-3xl font-bold num-font text-wx-green">60-70%</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">总消耗中基础代谢的占比</div>
+      </div>
+      <div class="fade-up-d1 card-base hover-orange p-4 sm:p-5">
+        <div class="text-[11px] sm:text-xs text-wx-sub mb-1"><i class="fa-solid fa-utensils text-wx-orange mr-1.5"></i>合理缺口</div>
+        <div class="text-2xl sm:text-3xl font-bold num-font text-wx-orange">300-500</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">每日 kcal 推荐缺口区间</div>
+      </div>
+      <div class="fade-up-d2 card-base hover-blue p-4 sm:p-5">
+        <div class="text-[11px] sm:text-xs text-wx-sub mb-1"><i class="fa-solid fa-dumbbell text-wx-primary mr-1.5"></i>蛋白质</div>
+        <div class="text-2xl sm:text-3xl font-bold num-font text-wx-primary">1.6-2.2</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">g/kg 体重 · 减脂保肌门槛</div>
+      </div>
+      <div class="fade-up-d3 card-base hover-gold p-4 sm:p-5">
+        <div class="text-[11px] sm:text-xs text-wx-sub mb-1"><i class="fa-solid fa-chart-line text-wx-gold mr-1.5"></i>健康速率</div>
+        <div class="text-2xl sm:text-3xl font-bold num-font text-wx-gold">0.5-1%</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">每周体重下降百分比上限</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 章节 1：能量公式总览 ============ -->
+<section id="formula" class="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <div class="flex items-center gap-3 mb-6 sm:mb-8 fade-up">
+    <div class="sec-num tag-blue">01</div>
+    <div class="min-w-0">
+      <h2 class="text-xl sm:text-2xl font-bold text-wx-text">能量收支总公式</h2>
+      <div class="text-[10px] sm:text-[11px] text-wx-sub tracking-[0.15em] sm:tracking-[0.2em] uppercase">The One Equation That Rules Them All</div>
+    </div>
+  </div>
+
+  <div class="card-base p-5 sm:p-8 fade-up-d1">
+    <div class="text-center mb-5 sm:mb-6">
+      <div class="text-xs sm:text-sm text-wx-sub tracking-wider uppercase mb-3">体重变化 = 摄入 − 消耗</div>
+      <!-- 公式：手机竖排 / 桌面横排 -->
+      <div class="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-2 sm:gap-4 text-sm sm:text-lg md:text-xl font-bold num-font">
+        <span class="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl tag-orange w-full sm:w-auto text-center">饮食摄入 (Calories In)</span>
+        <span class="text-wx-muted text-2xl sm:text-3xl leading-none">−</span>
+        <span class="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl tag-green w-full sm:w-auto text-center">总消耗 (TDEE)</span>
+        <span class="text-wx-muted text-2xl sm:text-3xl leading-none">=</span>
+        <span class="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl tag-blue w-full sm:w-auto text-center">能量缺口 → 减脂</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mt-6 sm:mt-8">
+      <div class="card-base hover-green p-4 sm:p-5">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fa-solid fa-heart-pulse text-wx-green"></i>
+          <div class="text-sm font-semibold">BMR · 基础代谢</div>
+          <span class="ml-auto text-[10px] sm:text-xs num-font tag-green px-2 py-0.5 rounded-full">60-70%</span>
+        </div>
+        <div class="text-xs text-wx-sub leading-relaxed">躺着不动也消耗的热量。维持体温、心跳、器官运转。<span class="text-wx-text font-medium">肌肉量↑ → BMR↑</span></div>
+        <div class="mt-2.5 text-[11px] num-font text-wx-muted">参考：60kg 成年人 ≈ 1300-1500 kcal/天</div>
+      </div>
+
+      <div class="card-base hover-orange p-4 sm:p-5">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fa-solid fa-person-running text-wx-orange"></i>
+          <div class="text-sm font-semibold">活动消耗 (NEAT + EAT)</div>
+          <span class="ml-auto text-[10px] sm:text-xs num-font tag-orange px-2 py-0.5 rounded-full">20-30%</span>
+        </div>
+        <div class="text-xs text-wx-sub leading-relaxed">主动运动 EAT + 日常活动 NEAT（走路/家务/坐姿微动）。<span class="text-wx-text font-medium">是你能主动放大的部分</span></div>
+        <div class="mt-2.5 text-[11px] num-font text-wx-muted">参考：办公久坐党 NEAT 仅 200-400 kcal/天</div>
+      </div>
+
+      <div class="card-base hover-purple p-4 sm:p-5">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fa-solid fa-fire-flame-curved text-wx-purple"></i>
+          <div class="text-sm font-semibold">食物热效应 TEF</div>
+          <span class="ml-auto text-[10px] sm:text-xs num-font tag-purple px-2 py-0.5 rounded-full">~10%</span>
+        </div>
+        <div class="text-xs text-wx-sub leading-relaxed">消化食物本身要耗能。蛋白质 TEF 最高（~25%），碳水 ~8%，脂肪 ~3%。</div>
+        <div class="mt-2.5 text-[11px] num-font text-wx-muted">→ 多吃蛋白质 = 白嫖一部分热量</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 章节 2：核心因果流程图 ============ -->
+<section id="metabolism" class="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <div class="flex items-center gap-3 mb-6 sm:mb-8 fade-up">
+    <div class="sec-num tag-gold">02</div>
+    <div class="min-w-0">
+      <h2 class="text-xl sm:text-2xl font-bold text-wx-text">核心因果流程图</h2>
+      <div class="text-[10px] sm:text-[11px] text-wx-sub tracking-[0.15em] sm:tracking-[0.2em] uppercase">How Metabolism · Diet · Exercise Interact</div>
+    </div>
+  </div>
+
+  <div class="card-base p-5 sm:p-6 md:p-10 fade-up-d1 relative overflow-hidden">
+    <div class="absolute top-10 right-10 w-56 sm:w-72 h-56 sm:h-72 rounded-full glow-soft-blue blur-3xl opacity-50"></div>
+    <div class="absolute bottom-10 left-10 w-56 sm:w-72 h-56 sm:h-72 rounded-full glow-soft-green blur-3xl opacity-50"></div>
+
+    <div class="relative">
+      <!-- ROW 1: 三大输入 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-10">
+        <!-- 代谢 -->
+        <div class="relative">
+          <div class="card-base hover-orange p-4 sm:p-5 relative">
+            <div class="flex items-center justify-between mb-2 gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-gauge-high text-wx-orange text-lg flex-shrink-0"></i>
+                <div class="font-bold">代谢底盘</div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full tag-orange whitespace-nowrap flex-shrink-0">先天 + 后天</span>
+            </div>
+            <ul class="text-xs text-wx-sub space-y-1.5 leading-relaxed">
+              <li>• <span class="text-wx-text font-medium">肌肉量</span>（每 kg 肌肉多耗 13 kcal/天）</li>
+              <li>• <span class="text-wx-text font-medium">年龄</span>（30 岁后每 10 年降 2-3%）</li>
+              <li>• <span class="text-wx-text font-medium">激素</span>（甲状腺/瘦素/胰岛素敏感度）</li>
+              <li>• <span class="text-wx-text font-medium">睡眠</span>（少睡 1h，BMR 降 5%）</li>
+            </ul>
+          </div>
+          <div class="hidden md:block absolute -bottom-8 left-1/2 -translate-x-1/2 w-px h-8 conn-line"></div>
+        </div>
+
+        <!-- 饮食 -->
+        <div class="relative">
+          <div class="card-base hover-green p-4 sm:p-5 relative">
+            <div class="flex items-center justify-between mb-2 gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-bowl-food text-wx-green text-lg flex-shrink-0"></i>
+                <div class="font-bold">饮食输入</div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full tag-green whitespace-nowrap flex-shrink-0">可控性最高</span>
+            </div>
+            <ul class="text-xs text-wx-sub space-y-1.5 leading-relaxed">
+              <li>• <span class="text-wx-text font-medium">总热量</span>（决定缺口大小）</li>
+              <li>• <span class="text-wx-text font-medium">蛋白质</span>（保肌 + 高 TEF + 高饱腹）</li>
+              <li>• <span class="text-wx-text font-medium">碳水质量</span>（GI 低 → 胰岛素稳）</li>
+              <li>• <span class="text-wx-text font-medium">进食时机</span>（影响饥饿激素）</li>
+            </ul>
+          </div>
+          <div class="hidden md:block absolute -bottom-8 left-1/2 -translate-x-1/2 w-px h-8 conn-line"></div>
+        </div>
+
+        <!-- 运动 -->
+        <div class="relative">
+          <div class="card-base hover-blue p-4 sm:p-5 relative">
+            <div class="flex items-center justify-between mb-2 gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <i class="fa-solid fa-dumbbell text-wx-primary text-lg flex-shrink-0"></i>
+                <div class="font-bold">运动输出</div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full tag-blue whitespace-nowrap flex-shrink-0">加速器</span>
+            </div>
+            <ul class="text-xs text-wx-sub space-y-1.5 leading-relaxed">
+              <li>• <span class="text-wx-text font-medium">力量训练</span>（保肌 → 维持 BMR）</li>
+              <li>• <span class="text-wx-text font-medium">有氧运动</span>（直接烧热量）</li>
+              <li>• <span class="text-wx-text font-medium">HIIT</span>（EPOC 后燃效应）</li>
+              <li>• <span class="text-wx-text font-medium">日常 NEAT</span>（走路/站立办公）</li>
+            </ul>
+          </div>
+          <div class="hidden md:block absolute -bottom-8 left-1/2 -translate-x-1/2 w-px h-8 conn-line"></div>
+        </div>
+      </div>
+
+      <!-- 手机端汇聚向下箭头 -->
+      <div class="flex md:hidden justify-center my-3">
+        <i class="fa-solid fa-arrow-down text-wx-muted text-lg"></i>
+      </div>
+
+      <!-- ROW 2: 中间汇聚节点 -->
+      <div class="md:mt-12 flex justify-center">
+        <div class="card-base hover-gold px-5 sm:px-8 py-4 sm:py-5 relative max-w-2xl w-full" style="border-color:#fde68a;background:#fffbeb;">
+          <div class="flex items-center justify-center gap-2 sm:gap-3 mb-2">
+            <i class="fa-solid fa-scale-balanced text-wx-gold text-lg sm:text-xl"></i>
+            <div class="font-bold text-base sm:text-lg">每日能量收支差额</div>
+          </div>
+          <div class="text-center text-xs sm:text-sm text-wx-sub">
+            <span class="text-wx-orange font-semibold">摄入</span>
+            <span class="mx-2 text-wx-gold">vs</span>
+            <span class="text-wx-green font-semibold">BMR + 活动 + TEF</span>
+          </div>
+          <div class="hidden md:block absolute -bottom-8 left-1/2 -translate-x-1/2 w-px h-8 conn-line"></div>
+        </div>
+      </div>
+
+      <!-- 手机端向下箭头 -->
+      <div class="flex md:hidden justify-center my-3">
+        <i class="fa-solid fa-arrow-down text-wx-muted text-lg"></i>
+      </div>
+
+      <!-- ROW 3: 三种结果 -->
+      <div class="md:mt-12 grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6">
+        <div class="card-base hover-green p-4 sm:p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-arrow-trend-down text-wx-green text-lg"></i>
+            <div class="font-bold text-wx-green">缺口为负 · 减脂</div>
+          </div>
+          <div class="text-xs text-wx-sub leading-relaxed">
+            缺口 300-500 kcal/天 → 每周 0.3-0.5 kg 健康减脂<br>
+            <span class="text-wx-gold mt-2 inline-block font-medium">⚠ 缺口 &gt;700 → 肌肉流失 + 代谢下降</span>
+          </div>
+        </div>
+        <div class="card-base hover-blue p-4 sm:p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-equals text-wx-primary text-lg"></i>
+            <div class="font-bold text-wx-primary">收支平衡 · 维持</div>
+          </div>
+          <div class="text-xs text-wx-sub leading-relaxed">
+            维持期作用很大：让代谢回升、修复瘦素、为下一轮减脂蓄力<br>
+            <span class="text-wx-text mt-2 inline-block font-medium">→ 每减 5kg 建议 maintain 4-6 周</span>
+          </div>
+        </div>
+        <div class="card-base hover-red p-4 sm:p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-arrow-trend-up text-wx-red text-lg"></i>
+            <div class="font-bold text-wx-red">摄入超出 · 增重</div>
+          </div>
+          <div class="text-xs text-wx-sub leading-relaxed">
+            超 200-300 kcal/天 + 力量训练 = 增肌；<br>
+            超量但无训练 = 纯长脂，BMR 反而提升有限
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 章节 3：饮食的拆解 ============ -->
+<section id="diet" class="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <div class="flex items-center gap-3 mb-6 sm:mb-8 fade-up">
+    <div class="sec-num tag-green">03</div>
+    <div class="min-w-0">
+      <h2 class="text-xl sm:text-2xl font-bold text-wx-text">饮食控制 · 多少才合理</h2>
+      <div class="text-[10px] sm:text-[11px] text-wx-sub tracking-[0.15em] sm:tracking-[0.2em] uppercase">How Much, What & When</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+    <!-- 总量 -->
+    <div class="card-base hover-orange p-5 sm:p-6 fade-up-d1">
+      <div class="flex items-center gap-2 mb-3">
+        <i class="fa-solid fa-calculator text-wx-orange"></i>
+        <div class="font-semibold">第一步 · 算 TDEE</div>
+      </div>
+      <div class="text-xs text-wx-sub leading-relaxed mb-3">
+        TDEE = BMR × 活动系数。最简公式：
+      </div>
+      <div class="bg-wx-soft border border-wx-borderSoft rounded-lg p-3 num-font text-[11px] sm:text-xs text-wx-text leading-relaxed overflow-x-auto">
+        男性 BMR = 10×kg + 6.25×cm − 5×age + 5<br>
+        女性 BMR = 10×kg + 6.25×cm − 5×age − 161<br><br>
+        久坐 ×1.2 / 轻活 ×1.375 / 中活 ×1.55 / 高活 ×1.725
+      </div>
+      <div class="mt-3 text-[11px] text-wx-gold font-medium"><i class="fa-solid fa-lightbulb mr-1"></i>缺口取 TDEE 的 15-25% 最稳</div>
+    </div>
+
+    <!-- 三大营养素 -->
+    <div class="card-base hover-green p-5 sm:p-6 fade-up-d2">
+      <div class="flex items-center gap-2 mb-3">
+        <i class="fa-solid fa-chart-pie text-wx-green"></i>
+        <div class="font-semibold">第二步 · 配比三大营养素</div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table text-xs min-w-[320px]">
+          <thead>
+            <tr><th class="text-left">营养素</th><th>目标</th><th class="text-left">来源</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="text-wx-primary font-semibold">蛋白质</td><td class="num text-wx-primary">1.6-2.2 g/kg</td><td class="text-wx-sub">鸡胸/鱼/蛋/乳清</td></tr>
+            <tr><td class="text-wx-orange font-semibold">脂肪</td><td class="num text-wx-orange">0.6-1.0 g/kg</td><td class="text-wx-sub">坚果/橄榄油/鱼油</td></tr>
+            <tr><td class="text-wx-cyan font-semibold">碳水</td><td class="num text-wx-cyan">剩余热量</td><td class="text-wx-sub">糙米/燕麦/红薯</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-3 text-[11px] text-wx-green font-medium"><i class="fa-solid fa-check mr-1"></i>蛋白质优先级最高，绝不打折</div>
+    </div>
+
+    <!-- 进食策略 -->
+    <div class="card-base hover-purple p-5 sm:p-6 fade-up-d3">
+      <div class="flex items-center gap-2 mb-3">
+        <i class="fa-solid fa-clock text-wx-purple"></i>
+        <div class="font-semibold">第三步 · 进食节奏</div>
+      </div>
+      <ul class="text-xs text-wx-sub space-y-2 leading-relaxed">
+        <li><i class="fa-solid fa-circle-check text-wx-green mr-1.5"></i>3 主餐 + 1-2 加餐，每餐有蛋白质</li>
+        <li><i class="fa-solid fa-circle-check text-wx-green mr-1.5"></i>训练前 1-2h 进碳水，训练后 30min 蛋白</li>
+        <li><i class="fa-solid fa-circle-check text-wx-green mr-1.5"></i>16:8 轻断食可选（不优于热量缺口）</li>
+        <li><i class="fa-solid fa-triangle-exclamation text-wx-gold mr-1.5"></i>避免极低卡（&lt;1200 女 / &lt;1500 男）</li>
+        <li><i class="fa-solid fa-xmark text-wx-red mr-1.5"></i>不要靠"代餐+断食"长期硬扛</i></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 章节 4：运动的拆解 ============ -->
+<section id="exercise" class="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <div class="flex items-center gap-3 mb-6 sm:mb-8 fade-up">
+    <div class="sec-num tag-blue">04</div>
+    <div class="min-w-0">
+      <h2 class="text-xl sm:text-2xl font-bold text-wx-text">运动 · 多少 + 怎么练</h2>
+      <div class="text-[10px] sm:text-[11px] text-wx-sub tracking-[0.15em] sm:tracking-[0.2em] uppercase">Strength × Cardio × NEAT</div>
+    </div>
+  </div>
+
+  <div class="card-base p-5 sm:p-6 md:p-8 fade-up-d1">
+    <div class="table-wrap">
+      <table class="data-table text-xs sm:text-sm min-w-[680px]">
+        <thead>
+          <tr>
+            <th class="text-left">类型</th>
+            <th class="text-left">作用</th>
+            <th>建议频次</th>
+            <th>单次时长</th>
+            <th>烧脂效率</th>
+            <th>保肌效果</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-semibold text-wx-primary"><i class="fa-solid fa-dumbbell mr-1.5"></i>力量训练</td>
+            <td class="text-wx-sub">保肌 + 撑住 BMR + 改善体型</td>
+            <td class="num">3-4 次/周</td>
+            <td class="num">45-60 min</td>
+            <td class="num text-wx-sub">中</td>
+            <td class="num text-wx-green font-bold">★★★★★</td>
+          </tr>
+          <tr>
+            <td class="font-semibold text-wx-orange"><i class="fa-solid fa-person-running mr-1.5"></i>慢速有氧 LISS</td>
+            <td class="text-wx-sub">直接烧热量 + 不增加恢复负担</td>
+            <td class="num">3-5 次/周</td>
+            <td class="num">30-50 min</td>
+            <td class="num text-wx-orange font-bold">★★★★</td>
+            <td class="num text-wx-sub">低</td>
+          </tr>
+          <tr>
+            <td class="font-semibold text-wx-red"><i class="fa-solid fa-bolt mr-1.5"></i>高强度 HIIT</td>
+            <td class="text-wx-sub">EPOC 后燃 + 心肺提升</td>
+            <td class="num">1-2 次/周</td>
+            <td class="num">15-25 min</td>
+            <td class="num text-wx-red font-bold">★★★★★</td>
+            <td class="num text-wx-sub">中</td>
+          </tr>
+          <tr>
+            <td class="font-semibold text-wx-cyan"><i class="fa-solid fa-shoe-prints mr-1.5"></i>日常 NEAT</td>
+            <td class="text-wx-sub">无负担放大 TDEE，性价比之王</td>
+            <td class="num">每天</td>
+            <td class="num">8000-12000 步</td>
+            <td class="num text-wx-cyan font-bold">★★★★</td>
+            <td class="num text-wx-sub">低</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="text-[10px] text-wx-muted mt-2 sm:hidden"><i class="fa-solid fa-arrows-left-right mr-1"></i>表格可左右滑动查看完整内容</div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mt-5 sm:mt-6">
+      <div class="p-4 rounded-xl tag-green">
+        <div class="font-semibold text-sm mb-1"><i class="fa-solid fa-trophy mr-1.5"></i>黄金组合</div>
+        <div class="text-xs leading-relaxed opacity-90">力量 3 次 + LISS 2 次 + 每日 NEAT 8000 步，比"每天跑步"减脂更不易反弹。</div>
+      </div>
+      <div class="p-4 rounded-xl tag-gold">
+        <div class="font-semibold text-sm mb-1"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>常见误区</div>
+        <div class="text-xs leading-relaxed opacity-90">"只跑步不练肌肉" → BMR 持续下降，平台期来得早，复胖率高。</div>
+      </div>
+      <div class="p-4 rounded-xl tag-blue">
+        <div class="font-semibold text-sm mb-1"><i class="fa-solid fa-lightbulb mr-1.5"></i>关键洞察</div>
+        <div class="text-xs leading-relaxed opacity-90">运动主要功能是 <span class="font-semibold">"保肌 + 调节代谢"</span>，不要指望它直接烧出大缺口 —— 跑 1h 才 ≈ 1 杯奶茶。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 章节 5：恶性闭环 ============ -->
+<section id="loop" class="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <div class="flex items-center gap-3 mb-6 sm:mb-8 fade-up">
+    <div class="sec-num tag-red">05</div>
+    <div class="min-w-0">
+      <h2 class="text-xl sm:text-2xl font-bold text-wx-text">恶性闭环 · 为什么你越减越胖</h2>
+      <div class="text-[10px] sm:text-[11px] text-wx-sub tracking-[0.15em] sm:tracking-[0.2em] uppercase">The Yo-Yo Trap</div>
+    </div>
+  </div>
+
+  <div class="card-base p-5 sm:p-6 md:p-10 fade-up-d1">
+    <!-- 闭环节点：手机 2 列 / 桌面 5 列 -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-3">
+      <div class="card-base hover-red p-3 sm:p-4 text-center relative">
+        <div class="text-xl sm:text-2xl mb-1">🥗</div>
+        <div class="font-bold text-xs sm:text-sm text-wx-red">极端节食</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">每天 800 kcal</div>
+        <div class="hidden md:block absolute top-1/2 -right-3 -translate-y-1/2 text-wx-muted"><i class="fa-solid fa-angle-right text-xl"></i></div>
+      </div>
+      <div class="card-base hover-red p-3 sm:p-4 text-center relative">
+        <div class="text-xl sm:text-2xl mb-1">💪</div>
+        <div class="font-bold text-xs sm:text-sm text-wx-red">肌肉流失</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">蛋白不足 + 没训练</div>
+        <div class="hidden md:block absolute top-1/2 -right-3 -translate-y-1/2 text-wx-muted"><i class="fa-solid fa-angle-right text-xl"></i></div>
+      </div>
+      <div class="card-base hover-red p-3 sm:p-4 text-center relative">
+        <div class="text-xl sm:text-2xl mb-1">🔻</div>
+        <div class="font-bold text-xs sm:text-sm text-wx-red">BMR 下降</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">代谢适应性下调</div>
+        <div class="hidden md:block absolute top-1/2 -right-3 -translate-y-1/2 text-wx-muted"><i class="fa-solid fa-angle-right text-xl"></i></div>
+      </div>
+      <div class="card-base hover-red p-3 sm:p-4 text-center relative">
+        <div class="text-xl sm:text-2xl mb-1">⛔</div>
+        <div class="font-bold text-xs sm:text-sm text-wx-red">平台期</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">同样吃法不再掉秤</div>
+        <div class="hidden md:block absolute top-1/2 -right-3 -translate-y-1/2 text-wx-muted"><i class="fa-solid fa-angle-right text-xl"></i></div>
+      </div>
+      <div class="card-base hover-red p-3 sm:p-4 text-center col-span-2 md:col-span-1">
+        <div class="text-xl sm:text-2xl mb-1">🍔</div>
+        <div class="font-bold text-xs sm:text-sm text-wx-red">报复性反弹</div>
+        <div class="text-[10px] sm:text-[11px] text-wx-sub mt-1 leading-snug">脂肪 ↑↑ 比之前更胖</div>
+      </div>
+    </div>
+
+    <div class="mt-6 sm:mt-8 p-4 sm:p-5 rounded-xl tag-red">
+      <div class="font-semibold mb-2 text-sm sm:text-base"><i class="fa-solid fa-circle-exclamation mr-1.5"></i>破解方式</div>
+      <div class="text-xs sm:text-sm leading-relaxed opacity-90 space-y-1">
+        <div>① 缺口控制在 TDEE 的 15-25%（别贪快）</div>
+        <div>② 蛋白质拉到 1.6-2.2 g/kg</div>
+        <div>③ 每周必有 2-3 次力量训练</div>
+        <div>④ 每减 5 kg 进入 4-6 周维持期，让代谢回升</div>
+        <div>⑤ 保证 7h+ 睡眠（睡不够时瘦素↓ 饥饿激素↑）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 章节 6：行动框架 ============ -->
+<section id="action" class="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <div class="flex items-center gap-3 mb-6 sm:mb-8 fade-up">
+    <div class="sec-num tag-cyan">06</div>
+    <div class="min-w-0">
+      <h2 class="text-xl sm:text-2xl font-bold text-wx-text">一图速查 · 优先级决策树</h2>
+      <div class="text-[10px] sm:text-[11px] text-wx-sub tracking-[0.15em] sm:tracking-[0.2em] uppercase">Priority Pyramid</div>
+    </div>
+  </div>
+
+  <div class="card-base p-5 sm:p-6 md:p-10 fade-up-d1">
+    <!-- 金字塔：手机全宽对齐 / 桌面阶梯缩进 -->
+    <div class="max-w-3xl mx-auto space-y-2.5 sm:space-y-3">
+      <div class="card-base hover-green p-4 sm:p-5 w-full" style="background:#ecfdf5; border-color:#a7f3d0;">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-wx-green text-white font-bold flex items-center justify-center num-font text-sm flex-shrink-0">1</span>
+            <div class="min-w-0">
+              <div class="font-bold text-wx-green text-sm sm:text-base">能量缺口（占成败 70%）</div>
+              <div class="text-[11px] sm:text-xs text-wx-sub mt-0.5 leading-snug">没缺口，做啥都没用。先把摄入算清楚。</div>
+            </div>
+          </div>
+          <div class="text-[10px] sm:text-xs text-wx-green num-font font-bold flex-shrink-0">CRITICAL</div>
+        </div>
+      </div>
+      <div class="card-base hover-blue p-4 sm:p-5 w-full sm:w-[90%] sm:ml-[5%]" style="background:#eff6ff; border-color:#bfdbfe;">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-wx-primary text-white font-bold flex items-center justify-center num-font text-sm flex-shrink-0">2</span>
+            <div class="min-w-0">
+              <div class="font-bold text-wx-primary text-sm sm:text-base">蛋白质 + 三大营养素配比（15%）</div>
+              <div class="text-[11px] sm:text-xs text-wx-sub mt-0.5 leading-snug">同样热量下，决定你减的是脂肪还是肌肉。</div>
+            </div>
+          </div>
+          <div class="text-[10px] sm:text-xs text-wx-primary num-font font-bold flex-shrink-0">HIGH</div>
+        </div>
+      </div>
+      <div class="card-base hover-orange p-4 sm:p-5 w-full sm:w-[80%] sm:ml-[10%]" style="background:#fff7ed; border-color:#fed7aa;">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-wx-orange text-white font-bold flex items-center justify-center num-font text-sm flex-shrink-0">3</span>
+            <div class="min-w-0">
+              <div class="font-bold text-wx-orange text-sm sm:text-base">力量训练 + NEAT（10%）</div>
+              <div class="text-[11px] sm:text-xs text-wx-sub mt-0.5 leading-snug">保住 BMR，避免越减越难减。</div>
+            </div>
+          </div>
+          <div class="text-[10px] sm:text-xs text-wx-orange num-font font-bold flex-shrink-0">MEDIUM</div>
+        </div>
+      </div>
+      <div class="card-base hover-purple p-4 sm:p-5 w-full sm:w-[70%] sm:ml-[15%]" style="background:#f5f3ff; border-color:#ddd6fe;">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-wx-purple text-white font-bold flex items-center justify-center num-font text-sm flex-shrink-0">4</span>
+            <div class="min-w-0">
+              <div class="font-bold text-wx-purple text-sm sm:text-base">睡眠 / 压力 / 激素（4%）</div>
+              <div class="text-[11px] sm:text-xs text-wx-sub mt-0.5 leading-snug">睡不够 = 瘦素↓饥饿激素↑，再努力也白搭。</div>
+            </div>
+          </div>
+          <div class="text-[10px] sm:text-xs text-wx-purple num-font font-bold flex-shrink-0">SUPPORT</div>
+        </div>
+      </div>
+      <div class="card-base hover-gold p-4 sm:p-5 w-full sm:w-[60%] sm:ml-[20%]" style="background:#fffbeb; border-color:#fde68a;">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-wx-gold text-white font-bold flex items-center justify-center num-font text-sm flex-shrink-0">5</span>
+            <div class="min-w-0">
+              <div class="font-bold text-wx-gold text-sm sm:text-base">营养时机 / 补剂（1%）</div>
+              <div class="text-[11px] sm:text-xs text-wx-sub mt-0.5 leading-snug">最不重要的事 —— 别本末倒置先研究蛋白粉。</div>
+            </div>
+          </div>
+          <div class="text-[10px] sm:text-xs text-wx-gold num-font font-bold flex-shrink-0">EXTRA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+      <div class="p-4 sm:p-5 rounded-xl tag-green">
+        <div class="font-bold mb-2 text-sm sm:text-base"><i class="fa-solid fa-circle-check mr-1.5"></i>新手起步公式（30 天）</div>
+        <ol class="text-xs sm:text-sm space-y-1.5 leading-relaxed list-decimal pl-5 opacity-90">
+          <li>算出 TDEE，减 400 kcal</li>
+          <li>蛋白质：体重 kg × 1.8 g（先达标）</li>
+          <li>力量训练 3 次 + 走路每天 8000 步</li>
+          <li>睡满 7h，每周称一次空腹晨重</li>
+          <li>每周降 0.3-0.5 kg 即合格</li>
+        </ol>
+      </div>
+      <div class="p-4 sm:p-5 rounded-xl tag-red">
+        <div class="font-bold mb-2 text-sm sm:text-base"><i class="fa-solid fa-circle-xmark mr-1.5"></i>千万别做的 5 件事</div>
+        <ul class="text-xs sm:text-sm space-y-1.5 leading-relaxed opacity-90">
+          <li>· 一上来就 1000 kcal/天硬抗</li>
+          <li>· 只做有氧不练力量</li>
+          <li>· 每天称重然后焦虑</li>
+          <li>· 把"少吃"等同于"少吃主食/不吃肉"</li>
+          <li>· 熬夜 + 节食 + 高强度训练同时上</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 页尾 -->
+<footer class="border-t border-wx-border mt-8 sm:mt-12 bg-white">
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 text-xs text-wx-sub">
+      <div>
+        <div class="text-wx-text font-semibold mb-2"><i class="fa-solid fa-database text-wx-primary mr-1.5"></i>知识来源</div>
+        <div class="leading-relaxed">
+          营养学基础原理 · ACSM/ISSN 运动指南<br>
+          Mifflin-St Jeor BMR 公式（1990）<br>
+          蛋白质保肌研究（Helms et al., 2014）
+        </div>
+      </div>
+      <div>
+        <div class="text-wx-text font-semibold mb-2"><i class="fa-solid fa-circle-info text-wx-green mr-1.5"></i>使用说明</div>
+        <div class="leading-relaxed">
+          本图为通用科普框架，不构成医疗建议<br>
+          糖尿病/甲状腺/孕期等特殊情况请遵医嘱<br>
+          个体差异 ±15%，请以体感与体测为准
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
